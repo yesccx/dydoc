@@ -1,0 +1,72 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:1.14.2
+        ports:
+            - '${HTTP_PORT}:80'
+            # - '443:443'
+        expose:
+            - '9004'
+        volumes:
+            - '${APP_PATH}:/var/www/html/ydoc:rw'
+            - '${APP_API_PATH}:/var/www/html/ydoc-api:rw'
+            - '${DC_PATH}/conf/nginx/conf.d:/etc/nginx/conf.d/:ro'
+            - '${DC_PATH}/conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
+            - '${DC_PATH}/log/nginx/:/var/log/dnmp/:rw'
+        networks:
+            - net-php
+        depends_on:
+            - php
+            - mysql
+        container_name: dy_nginx
+
+    php:
+        build: ./php/
+        expose:
+            - '9000'
+        volumes:
+            - '${APP_API_PATH}:/var/www/html/ydoc-api:rw'
+            - '${DC_PATH}/conf/php/php.ini:/usr/local/etc/php/php.ini:ro'
+            - '${DC_PATH}/conf/php/php-fpm.conf:/usr/local/etc/php-fpm.d/www.conf:rw'
+            - '${DC_PATH}/conf/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini:ro'
+            - '${DC_PATH}/log/php/:/var/log/dnmp/:rw'
+        environment:
+            - TZ=Asia/Shanghai
+        networks:
+            - net-php
+            - net-mysql
+        extra_hosts:
+            - 'Ontology:172.24.0.1'
+        container_name: dy_php
+
+    mysql:
+        image: mysql:5.6
+        ports:
+            - '${MYSQL_PORT}:3306'
+        expose:
+            - '3306'
+        volumes:
+            - '${DC_PATH}/conf/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro'
+            - '${DC_PATH}/mysql/:/var/lib/mysql/:rw'
+        networks:
+            - net-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: 'smile529'
+        container_name: dy_mysql
+
+    redis:
+        build: ./redis/
+        ports:
+            - "${REDIS_PORT}:6379"
+        expose:
+            - '6379'
+        networks:
+            - net-php
+        volumes:
+            - '${DC_PATH}/conf/redis/redis.conf:/data/redis.conf'
+            - '${DC_PATH}/redis/data/:/data/redis/:rw'
+        container_name: dy_redis
+
+networks:
+    ? net-php
+    ? net-mysql
