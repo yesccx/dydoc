@@ -11,6 +11,7 @@ services:
             - '${APP_PATH}:/var/www/html/ydoc:rw'
             - '${APP_API_PATH}:/var/www/html/ydoc-api:rw'
             - '${DC_PATH}/conf/nginx/conf.d:/etc/nginx/conf.d/:ro'
+            - '${DC_PATH}/conf/nginx/cert:/etc/nginx/cert/:ro'
             - '${DC_PATH}/conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
             - '${DC_PATH}/log/nginx/:/var/log/dnmp/:rw'
         networks:
@@ -48,6 +49,7 @@ services:
         volumes:
             - '${DC_PATH}/conf/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro'
             - '${DC_PATH}/mysql/:/var/lib/mysql/:rw'
+            - '${APP_API_PATH}/database.sql:/database.sql:rw'
         networks:
             - net-mysql
         environment:
