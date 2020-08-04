@@ -39,6 +39,14 @@ services:
         extra_hosts:
             - 'Ontology:172.24.0.1'
         container_name: dy_php
+    xunsearch:
+        build: ./xunsearch/
+        expose:
+            - '8383'
+            - '8384'
+        networks:
+            - net-php
+        container_name: dy_xunsearch
 
     mysql:
         image: mysql:5.6
